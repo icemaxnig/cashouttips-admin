@@ -1,3 +1,4 @@
+// UploadBooking.jsx (Branded for CashoutTips)
 import React, { useState } from "react";
 import CreatableSelect from "react-select/creatable";
 import api from "../api";
@@ -31,13 +32,14 @@ const UploadBooking = () => {
   const [expiryMinutes, setExpiryMinutes] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const { price, rate } = getBookingPrice(Number(totalOdds));
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!totalOdds || !bookingCode || !bookmaker || !category || !urgency || (!expiryHours && !expiryMinutes)) {
       return notifyError("All fields are required");
     }
 
-    const { price } = getBookingPrice(Number(totalOdds));
     const totalExpiryMinutes = parseInt(expiryHours || 0) * 60 + parseInt(expiryMinutes || 0);
 
     try {
@@ -82,109 +84,145 @@ const UploadBooking = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0E2C] text-white p-6">
-      <div className="max-w-2xl mx-auto bg-[#0A0E2C] p-6 rounded shadow">
-        <h2 className="text-2xl font-bold text-yellow-400 mb-4">Upload Booking Code</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="number"
-            step="0.01"
-            placeholder="Total Odds"
-            value={totalOdds}
-            onChange={(e) => {
-              const val = e.target.value;
-              setTotalOdds(val);
-              setConfidence(getBookingPrice(Number(val)).rate.replace("%", ""));
-            }}
-            className="input w-full text-black"
-          />
+    <div className="min-h-screen bg-[#1F2D5C] text-white p-6">
+      <div className="max-w-3xl mx-auto bg-[#1F2D5C] border border-yellow-500 p-6 rounded-2xl shadow-lg">
+        <h2 className="text-3xl font-bold text-yellow-400 mb-6 font-[Poppins]">📤 Upload Booking Code</h2>
+        <form onSubmit={handleSubmit} className="space-y-5 font-[Inter]">
 
-          <input
-            type="text"
-            placeholder="Booking Code"
-            value={bookingCode}
-            onChange={(e) => setBookingCode(e.target.value)}
-            className="input w-full text-black"
-          />
-
-          <CreatableSelect
-            placeholder="Select or type bookmaker"
-            options={BOOKMAKERS.map((b) => ({ label: b, value: b }))}
-            onChange={(opt) => setBookmaker(opt?.value || "")}
-            value={bookmaker ? { label: bookmaker, value: bookmaker } : null}
-          />
-
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="input w-full text-black"
-          >
-            <option value="">Select Category</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat}>{cat}</option>
-            ))}
-          </select>
-
-          <select
-            value={urgency}
-            onChange={(e) => setUrgency(e.target.value)}
-            className="input w-full text-black"
-          >
-            <option value="">Select Urgency</option>
-            {URGENCY_TAGS.map((tag) => (
-              <option key={tag}>{tag}</option>
-            ))}
-          </select>
-
-          <label className="block text-yellow-300 text-sm">AI Confidence: {confidence}%</label>
-          <input
-            type="range"
-            min="40"
-            max="99"
-            step="1"
-            value={confidence}
-            onChange={(e) => setConfidence(Number(e.target.value))}
-            className="w-full"
-          />
-
-          <div className="flex gap-2">
+          {/* Odds & Booking Code */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               type="number"
-              placeholder="Expiry Hours"
-              value={expiryHours}
-              onChange={(e) => setExpiryHours(e.target.value)}
-              className="input w-1/2 text-black"
+              step="0.01"
+              placeholder="🎯 Total Odds"
+              value={totalOdds}
+              onChange={(e) => {
+                const val = e.target.value;
+                setTotalOdds(val);
+                setConfidence(getBookingPrice(Number(val)).rate.replace("%", ""));
+              }}
+              className="input w-full text-black p-3 rounded-xl"
             />
             <input
-              type="number"
-              placeholder="Expiry Minutes"
-              value={expiryMinutes}
-              onChange={(e) => setExpiryMinutes(e.target.value)}
-              className="input w-1/2 text-black"
+              type="text"
+              placeholder="🔐 Booking Code"
+              value={bookingCode}
+              onChange={(e) => setBookingCode(e.target.value)}
+              className="input w-full text-black p-3 rounded-xl"
             />
           </div>
 
-          <input
-            type="number"
-            placeholder="Slot Limit (0 for unlimited)"
-            value={slotLimit}
-            onChange={(e) => setSlotLimit(Number(e.target.value))}
-            className="input w-full text-black"
-          />
+          {/* Bookmaker */}
+          <div>
+            <label className="block text-sm text-yellow-200 mb-1">📱 Bookmaker</label>
+            <CreatableSelect
+              placeholder="Select or type bookmaker"
+              options={BOOKMAKERS.map((b) => ({ label: b, value: b }))}
+              onChange={(opt) => setBookmaker(opt?.value || "")}
+              value={bookmaker ? { label: bookmaker, value: bookmaker } : null}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  backgroundColor: "#1F2D5C",
+                  color: "#FAFAFA",
+                  borderColor: "#FFD700",
+                  borderRadius: "0.75rem",
+                  padding: "4px"
+                }),
+                menu: (base) => ({
+                  ...base,
+                  backgroundColor: "#1F2D5C",
+                  color: "#FAFAFA",
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  backgroundColor: state.isFocused ? "#FFD700" : "#1F2D5C",
+                  color: state.isFocused ? "#1F2D5C" : "#FAFAFA",
+                  cursor: "pointer"
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: "#FAFAFA"
+                })
+              }}
+            />
+          </div>
 
+          {/* Category & Urgency */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="input w-full text-black p-3 rounded-xl"
+            >
+              <option value="">📂 Select Category</option>
+              {CATEGORIES.map((cat) => (
+                <option key={cat}>{cat}</option>
+              ))}
+            </select>
+
+            <select
+              value={urgency}
+              onChange={(e) => setUrgency(e.target.value)}
+              className="input w-full text-black p-3 rounded-xl"
+            >
+              <option value="">⏱️ Select Urgency</option>
+              {URGENCY_TAGS.map((tag) => (
+                <option key={tag}>{tag}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Price Display */}
+          <p className="text-sm text-green-300">
+            💰 Auto Price: ₦{price.toLocaleString()} ({rate})
+          </p>
+
+          {/* Expiry Time */}
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="number"
+              placeholder="🕐 Expiry Hours"
+              value={expiryHours}
+              onChange={(e) => setExpiryHours(e.target.value)}
+              className="input text-black p-3 rounded-xl"
+            />
+            <input
+              type="number"
+              placeholder="⏳ Expiry Minutes"
+              value={expiryMinutes}
+              onChange={(e) => setExpiryMinutes(e.target.value)}
+              className="input text-black p-3 rounded-xl"
+            />
+          </div>
+
+          {/* Slot Limit */}
+          <div>
+            <input
+              type="number"
+              placeholder="🎟️ Number of Slots"
+              value={slotLimit}
+              onChange={(e) => setSlotLimit(Number(e.target.value))}
+              className="input w-full text-black p-3 rounded-xl"
+            />
+            <small className="text-yellow-200 text-sm">Enter <b>0</b> for unlimited access</small>
+          </div>
+
+          {/* Admin Note */}
           <textarea
-            placeholder="Optional Admin Note"
+            placeholder="📝 Optional Admin Note"
             value={adminNote}
             onChange={(e) => setAdminNote(e.target.value)}
-            className="input w-full text-black"
+            className="input w-full text-black p-3 rounded-xl"
           ></textarea>
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="btn bg-yellow-400 text-[#0A0E2C] font-semibold w-full"
+            className="w-full bg-yellow-400 hover:bg-yellow-300 text-[#1F2D5C] font-bold py-3 rounded-full transition-all"
           >
-            {loading ? "Uploading..." : "Upload Booking"}
+            {loading ? "Uploading..." : "✅ Upload Booking"}
           </button>
         </form>
       </div>
