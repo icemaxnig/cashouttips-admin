@@ -1,7 +1,7 @@
 // UploadBooking.jsx (Branded for CashoutTips)
 import React, { useState } from "react";
 import CreatableSelect from "react-select/creatable";
-import api from "../api";
+import adminApi from "../api/adminApi";
 import { notifySuccess, notifyError } from "../components/Toast";
 
 const BOOKMAKERS = ["Bet9ja", "1xbet", "Betway", "SportyBet", "BetKing"];
@@ -44,8 +44,7 @@ const UploadBooking = () => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem("adminToken");
-      await api.post(
+      await adminApi.post(
         "/booking-codes/upload",
         {
           bookingCode,
@@ -58,9 +57,6 @@ const UploadBooking = () => {
           urgency,
           slotLimit: Number(slotLimit),
           expiryMinutes: totalExpiryMinutes,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -86,10 +82,8 @@ const UploadBooking = () => {
   return (
     <div className="min-h-screen bg-[#1F2D5C] text-white p-6">
       <div className="max-w-3xl mx-auto bg-[#1F2D5C] border border-yellow-500 p-6 rounded-2xl shadow-lg">
-        <h2 className="text-3xl font-bold text-yellow-400 mb-6 font-[Poppins]">📤 Upload Booking Code</h2>
+        <h2 className="text-3xl font-bold text-yellow-400 mb-6 font-[Poppins]">📄 Upload Booking Code</h2>
         <form onSubmit={handleSubmit} className="space-y-5 font-[Inter]">
-
-          {/* Odds & Booking Code */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               type="number"
@@ -111,8 +105,6 @@ const UploadBooking = () => {
               className="input w-full text-black p-3 rounded-xl"
             />
           </div>
-
-          {/* Bookmaker */}
           <div>
             <label className="block text-sm text-yellow-200 mb-1">📱 Bookmaker</label>
             <CreatableSelect
@@ -127,7 +119,7 @@ const UploadBooking = () => {
                   color: "#FAFAFA",
                   borderColor: "#FFD700",
                   borderRadius: "0.75rem",
-                  padding: "4px"
+                  padding: "4px",
                 }),
                 menu: (base) => ({
                   ...base,
@@ -138,17 +130,15 @@ const UploadBooking = () => {
                   ...base,
                   backgroundColor: state.isFocused ? "#FFD700" : "#1F2D5C",
                   color: state.isFocused ? "#1F2D5C" : "#FAFAFA",
-                  cursor: "pointer"
+                  cursor: "pointer",
                 }),
                 singleValue: (base) => ({
                   ...base,
-                  color: "#FAFAFA"
-                })
+                  color: "#FAFAFA",
+                }),
               }}
             />
           </div>
-
-          {/* Category & Urgency */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <select
               value={category}
@@ -160,7 +150,6 @@ const UploadBooking = () => {
                 <option key={cat}>{cat}</option>
               ))}
             </select>
-
             <select
               value={urgency}
               onChange={(e) => setUrgency(e.target.value)}
@@ -172,13 +161,9 @@ const UploadBooking = () => {
               ))}
             </select>
           </div>
-
-          {/* Price Display */}
           <p className="text-sm text-green-300">
             💰 Auto Price: ₦{price.toLocaleString()} ({rate})
           </p>
-
-          {/* Expiry Time */}
           <div className="grid grid-cols-2 gap-4">
             <input
               type="number"
@@ -195,8 +180,6 @@ const UploadBooking = () => {
               className="input text-black p-3 rounded-xl"
             />
           </div>
-
-          {/* Slot Limit */}
           <div>
             <input
               type="number"
@@ -205,18 +188,16 @@ const UploadBooking = () => {
               onChange={(e) => setSlotLimit(Number(e.target.value))}
               className="input w-full text-black p-3 rounded-xl"
             />
-            <small className="text-yellow-200 text-sm">Enter <b>0</b> for unlimited access</small>
+            <small className="text-yellow-200 text-sm">
+              Enter <b>0</b> for unlimited access
+            </small>
           </div>
-
-          {/* Admin Note */}
           <textarea
             placeholder="📝 Optional Admin Note"
             value={adminNote}
             onChange={(e) => setAdminNote(e.target.value)}
             className="input w-full text-black p-3 rounded-xl"
           ></textarea>
-
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
